@@ -5,7 +5,7 @@
 // @homepageURL  https://github.com/marktaiwan/4chan-Webm-Auto-Resume
 // @supportURL   https://github.com/marktaiwan/4chan-Webm-Auto-Resume/issues
 // @license      MIT
-// @version      0.1
+// @version      0.2
 // @author       Marker
 // @include      *//boards.4chan.org/*
 // @grant        none
@@ -14,7 +14,8 @@
 
 (function() {
   'use strict';
-  let ticking = false;
+  const interval = 100; // millisecond
+  let lastExecution = Date.now();
 
   function isVisible(ele) {
     const {top, bottom} = ele.getBoundingClientRect();
@@ -27,6 +28,7 @@
 
   function pauseHandler(event) {
     const video = event.target;
+
     // Video is still in view when paused, therefore it's triggered by the user
     if (isVisible(video)) video.dataset.userPauseState = '1';
   }
@@ -45,20 +47,17 @@
   }
 
   document.addEventListener('scroll', () => {
-    if (!ticking) {
-      window.requestAnimationFrame(() => {
-
+    if (Date.now() - lastExecution > interval) {
+      window.setTimeout(function () {
         const expandedVideos = document.querySelectorAll('.expandedWebm');
         for (const video of expandedVideos) {
           initVideoElement(video);
           if (video.paused && isVisible(video) && !pausedByUser(video)) {
-            video.play();
+            video.play().catch(() => {/* noop */});
           }
         }
-        ticking = false;
-
-      });
-      ticking = true;
+      }, interval);
+      lastExecution = Date.now();
     }
   });
 })();
