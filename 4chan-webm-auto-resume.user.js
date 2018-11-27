@@ -8,6 +8,7 @@
 // @version      0.2
 // @author       Marker
 // @include      *//boards.4chan.org/*
+// @include      *//boards.4channel.org/*
 // @grant        none
 // @noframe
 // ==/UserScript==
