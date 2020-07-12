@@ -5,9 +5,10 @@
 // @homepageURL  https://github.com/marktaiwan/4chan-Webm-Auto-Resume
 // @supportURL   https://github.com/marktaiwan/4chan-Webm-Auto-Resume/issues
 // @license      MIT
-// @version      0.2
+// @version      0.3
 // @author       Marker
 // @include      *//boards.4chan.org/*
+// @include      *//boards.4channel.org/*
 // @grant        none
 // @noframe
 // ==/UserScript==
