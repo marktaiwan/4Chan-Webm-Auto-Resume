@@ -12,52 +12,52 @@
 // @noframe
 // ==/UserScript==
 
-(function() {
-  'use strict';
-  const interval = 100; // millisecond
-  let lastExecution = Date.now();
+(function () {
+'use strict';
+const interval = 100; // millisecond
+let lastExecution = Date.now();
 
-  function isVisible(ele) {
-    const {top, bottom} = ele.getBoundingClientRect();
-    return (top > 0 || bottom > 0) && (top < document.documentElement.clientHeight);
+function isVisible(ele) {
+  const {top, bottom} = ele.getBoundingClientRect();
+  return (top > 0 || bottom > 0) && (top < document.documentElement.clientHeight);
+}
+
+function pausedByUser(video) {
+  return (video.dataset.userPauseState === '1');
+}
+
+function pauseHandler(event) {
+  const video = event.target;
+
+  // Video is still in view when paused, therefore it's triggered by the user
+  if (isVisible(video)) video.dataset.userPauseState = '1';
+}
+
+function playHandler(event) {
+  const video = event.target;
+  if (pausedByUser(video)) video.dataset.userPauseState = '0';
+}
+
+function initVideoElement(video) {
+  if (video.dataset.userPauseState === undefined) {
+    video.dataset.userPauseState = '0';
+    video.addEventListener('pause', pauseHandler);
+    video.addEventListener('play', playHandler);
   }
+}
 
-  function pausedByUser(video) {
-    return (video.dataset.userPauseState === '1');
-  }
-
-  function pauseHandler(event) {
-    const video = event.target;
-
-    // Video is still in view when paused, therefore it's triggered by the user
-    if (isVisible(video)) video.dataset.userPauseState = '1';
-  }
-
-  function playHandler(event) {
-    const video = event.target;
-    if (pausedByUser(video)) video.dataset.userPauseState = '0';
-  }
-
-  function initVideoElement(video) {
-    if (video.dataset.userPauseState === undefined) {
-      video.dataset.userPauseState = '0';
-      video.addEventListener('pause', pauseHandler);
-      video.addEventListener('play', playHandler);
-    }
-  }
-
-  document.addEventListener('scroll', () => {
-    if (Date.now() - lastExecution > interval) {
-      window.setTimeout(function () {
-        const expandedVideos = document.querySelectorAll('.expandedWebm');
-        for (const video of expandedVideos) {
-          initVideoElement(video);
-          if (video.paused && isVisible(video) && !pausedByUser(video)) {
-            video.play().catch(() => {/* noop */});
-          }
+document.addEventListener('scroll', () => {
+  if (Date.now() - lastExecution > interval) {
+    window.setTimeout(function () {
+      const expandedVideos = document.querySelectorAll('.expandedWebm');
+      for (const video of expandedVideos) {
+        initVideoElement(video);
+        if (video.paused && isVisible(video) && !pausedByUser(video)) {
+          video.play().catch(() => {/* noop */});
         }
-      }, interval);
-      lastExecution = Date.now();
-    }
-  });
+      }
+    }, interval);
+    lastExecution = Date.now();
+  }
+});
 })();
