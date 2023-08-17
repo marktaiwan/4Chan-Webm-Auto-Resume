@@ -5,22 +5,22 @@
 // @homepageURL  https://github.com/marktaiwan/4chan-Webm-Auto-Resume
 // @supportURL   https://github.com/marktaiwan/4chan-Webm-Auto-Resume/issues
 // @license      MIT
-// @version      0.3
+// @version      0.4
 // @author       Marker
 // @include      *//boards.4chan.org/*
 // @include      *//boards.4channel.org/*
+// @require      https://raw.githubusercontent.com/soufianesakhi/node-creation-observer-js/master/release/node-creation-observer-latest.js
 // @grant        none
 // @noframe
 // ==/UserScript==
 
+/* global NodeCreationObserver */
 (function () {
 'use strict';
-const interval = 100; // millisecond
-let lastExecution = Date.now();
+const SCRIPT_ID = 'webm-auto-resume';
 
 function isVisible(ele) {
-  const {top, bottom} = ele.getBoundingClientRect();
-  return (top > 0 || bottom > 0) && (top < document.documentElement.clientHeight);
+  return (ele.dataset.visibility === '1');
 }
 
 function pausedByUser(video) {
@@ -39,26 +39,21 @@ function playHandler(event) {
   if (pausedByUser(video)) video.dataset.userPauseState = '0';
 }
 
-function initVideoElement(video) {
-  if (video.dataset.userPauseState === undefined) {
-    video.dataset.userPauseState = '0';
-    video.addEventListener('pause', pauseHandler);
-    video.addEventListener('play', playHandler);
-  }
-}
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    const video = entry.target;
+    video.dataset.visibility = entry.isIntersecting ? '1' : '0';
+    if (video.paused && entry.isIntersecting && !pausedByUser(video)) {
+      video.play().catch(() => {/* noop */});
+    }
+  });
+});
 
-document.addEventListener('scroll', () => {
-  if (Date.now() - lastExecution > interval) {
-    window.setTimeout(function () {
-      const expandedVideos = document.querySelectorAll('.expandedWebm');
-      for (const video of expandedVideos) {
-        initVideoElement(video);
-        if (video.paused && isVisible(video) && !pausedByUser(video)) {
-          video.play().catch(() => {/* noop */});
-        }
-      }
-    }, interval);
-    lastExecution = Date.now();
-  }
+NodeCreationObserver.init(SCRIPT_ID);
+NodeCreationObserver.onCreation('.expandedWebm', video => {
+  video.dataset.userPauseState = video.paused ? '1' : '0';
+  video.addEventListener('pause', pauseHandler);
+  video.addEventListener('play', playHandler);
+  observer.observe(video);
 });
 })();
