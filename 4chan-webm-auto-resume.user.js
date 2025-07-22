@@ -7,8 +7,7 @@
 // @license      MIT
 // @version      0.4
 // @author       Marker
-// @include      *//boards.4chan.org/*
-// @include      *//boards.4channel.org/*
+// @match        *://boards.4chan.org/*
 // @require      https://raw.githubusercontent.com/soufianesakhi/node-creation-observer-js/master/release/node-creation-observer-latest.js
 // @grant        none
 // @noframe
