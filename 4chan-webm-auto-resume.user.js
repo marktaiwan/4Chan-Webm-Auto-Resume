@@ -44,7 +44,7 @@ const observer = new IntersectionObserver(entries => {
     const video = entry.target;
     video.dataset.visibility = entry.isIntersecting ? '1' : '0';
     if (video.paused && entry.isIntersecting && !pausedByUser(video)) {
-      video.play().catch(() => {/* noop */});
+      video.play().catch(() => { /* noop */ });
     }
   });
 });
